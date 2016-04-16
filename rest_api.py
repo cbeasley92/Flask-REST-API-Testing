@@ -5,6 +5,7 @@
 
 from flask import Flask, jsonify, abort, make_response, request, url_for
 from flask_httpauth import HTTPBasicAuth
+from flask_swagger import swagger
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -23,6 +24,14 @@ tasks = [
         'done': False
     }
 ]
+
+
+@app.route("/spec")
+def spec():
+    swag = swagger(app)
+    swag['info']['version'] = "1.0"
+    swag['info']['title'] = "My API"
+    return jsonify(swag)
 
 
 def make_public_task(task):
@@ -65,14 +74,14 @@ def index():
 
 
 @app.route('/todo/api/v1.0/tasks', methods=['GET'])
-@auth.login_required
+# @auth.login_required
 def get_tasks():
     # Displaying tasks object
     return jsonify({'tasks': [make_public_task(task) for task in tasks]})
 
 
 @app.route('/todo/api/v1.0/tasks', methods=['POST'])
-@auth.login_required
+# @auth.login_required
 def create_task():
     if not request.json or not 'title' in request.json:
         abort(400)
@@ -87,7 +96,7 @@ def create_task():
 
 
 @app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['GET'])
-@auth.login_required
+# @auth.login_required
 def get_task(task_id):
     task = [task for task in tasks if task['id'] == task_id]
     if len(task) == 0:
@@ -96,7 +105,7 @@ def get_task(task_id):
 
 
 @app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['PUT'])
-@auth.login_required
+# @auth.login_required
 def update_task(task_id):
     task = [task for task in tasks if task['id'] == task_id]
     if len(task) == 0:
@@ -116,7 +125,7 @@ def update_task(task_id):
 
 
 @app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['DELETE'])
-@auth.login_required
+# @auth.login_required
 def delete_task(task_id):
     task = [task for task in tasks if task['id'] == task_id]
     if len(task) == 0:
